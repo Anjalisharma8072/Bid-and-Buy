@@ -4,11 +4,13 @@ import Footer from "./Footer";
 import Login from "./login/login";
 import Modal from "react-modal";
 import Register from "./register";
+import AdminLogin from "./Admin Panel/login";
 
 Modal.setAppElement("#root");
 
 function Home() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isAdminLoginOpen, setIsAdminLoginOpen] = useState(false);
   const[isRegisterOpen,setIsRegisterOpen] = useState(false);
   const openLoginModal = () => {
     setIsLoginOpen(true);
@@ -17,6 +19,14 @@ function Home() {
 
   const closeLoginModal = () => {
     setIsLoginOpen(false);
+  };
+  const openAdminLoginModal = () => {
+    setIsAdminLoginOpen(true);
+    setIsRegisterOpen(false);
+  };
+
+  const closeAdminLoginModal = () => {
+    setIsAdminLoginOpen(false);
   };
   const openRegisterModal = ()=>{
     setIsRegisterOpen(true);
@@ -38,8 +48,19 @@ function Home() {
             </button>
           </div>
           <div className="p-4">
-            <button onClick={openRegisterModal}  className="bg-orange-300  font-bold text-stone-900 px-6 py-2 rounded hover:bg-orange-400 transition duration-300 w-24 h-10">
+            <button
+              onClick={openRegisterModal}
+              className="bg-orange-300  font-bold text-stone-900 px-6 py-2 rounded hover:bg-orange-400 transition duration-300 w-24 h-10"
+            >
               Register
+            </button>
+          </div>
+          <div className="p-4">
+            <button
+              onClick={openAdminLoginModal}
+              className="bg-orange-300  font-bold text-stone-900 px-6 py-2 rounded hover:bg-orange-400 transition duration-300 w-24 h-10"
+            >
+              Admin
             </button>
           </div>
         </div>
@@ -178,6 +199,17 @@ function Home() {
         >
           <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full">
             <Login closeModal={closeLoginModal} />
+          </div>
+        </Modal>
+        <Modal
+          isOpen={isAdminLoginOpen}
+          onRequestClose={closeAdminLoginModal}
+          contentLabel="Login Modal"
+          className="fixed inset-0 flex items-center justify-center z-50"
+          overlayClassName="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
+        >
+          <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full">
+            <AdminLogin closeModal={closeAdminLoginModal} />
           </div>
         </Modal>
 

@@ -7,6 +7,9 @@ import Sell from "./components/sell/sell";
 import BuyCards from "./components/Buy/buy";
 import Bid from "./components/Buy/bid"
 import UserItem from "./components/userItems";
+import Feedback from "./components/Feedback";
+import Allproducts from "./components/Admin Panel/products";
+import AllFeedbacks from "./components/Admin Panel/feedbacks";
 
 function App() {
   return (
@@ -20,6 +23,9 @@ function App() {
           <Route path="/buy" element={<BuyCards />} />
           <Route path="/bid/:id" element={<Bid />} />
           <Route path="/UserItem" element={<UserItem />} />
+          <Route path="/feedback" element={<Feedback />} />
+          <Route path="/admin" element={<Allproducts />} />
+          <Route path="/admin/feedbacks" element={<AllFeedbacks />} />
         </Routes>
       </Router>
     </div>

@@ -1,44 +1,42 @@
-import React, { useState }from "react";
+import React, { useState } from "react";
 import Modal from "react-modal";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-Modal.setAppElement('#root');
+Modal.setAppElement("#root");
 
-function Login({closeModal}) {
-  
-const navigate = useNavigate();
-  const[email,setEmail] = useState('');
-  const [password,setPassword] = useState('');
-  const[error,setError] = useState('');
-  
-  const handleLogInClick = async()=>{
-    if(!email || !password){
-      setError('All Feilds are required');
+function AdminLogin({ closeModal }) {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleLogInClick = async () => {
+    if (!email || !password) {
+      setError("All fields are required");
       return;
     }
-    const loginData = {email,password};
+    const loginData = { email, password };
 
-    try{
-      const response = await fetch("http://localhost:8000/api/auth/login", {
+    try {
+      const response = await fetch("http://localhost:8000/api/auth/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(loginData),
       });
       const responseData = await response.json();
-      if(response.ok){
-        alert('Login Sucessfully!');
+      if (response.ok) {
+        alert("Login Successful!");
         localStorage.setItem("token", responseData.token);
         closeModal();
-        setError('');
-        navigate('/buy');
-      }else{
-        setError(responseData.msg||'Invalid email or password');
-        return false;
+        setError("");
+        navigate("/admin");
+        
+      } else {
+        setError(responseData.msg || "Invalid email or password");
       }
-    }catch(error){
-      setError('An Error occured during login.Please try again later');
+    } catch (error) {
+      setError("An error occurred during login. Please try again later");
       console.log(error);
-      return false;
     }
   };
 
@@ -52,15 +50,15 @@ const navigate = useNavigate();
           <div className="xl:mx-auto xl:w-full shadow-md p-4 xl:max-w-sm 2xl:max-w-md">
             <div className="mb-2 flex justify-center"></div>
             <h2 className="text-center text-2xl font-bold leading-tight text-black">
-              Sign in to your account
+              Admin Login
             </h2>
-            <p className="mt-2 text-center text-sm text-gray-600">
-              Don't have an account?
-              <Link to="/register" className="sign-up" onClick={closeModal}>
-                Create a free account
-              </Link>
-            </p>
-            <form className="mt-8" onSubmit={(e) => e.preventDefault()}>
+            <form
+              className="mt-8"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleLogInClick();
+              }}
+            >
               <div className="space-y-5">
                 <div>
                   <label className="text-base font-medium text-gray-900">
@@ -96,15 +94,13 @@ const navigate = useNavigate();
                   {error && <span className="login-error">{error}</span>}
                   <button
                     className="inline-flex w-full items-center justify-center rounded-md bg-black px-3.5 py-2.5 font-semibold leading-7 text-white hover:bg-black/80"
-                    type="button"
-                    onClick={handleLogInClick}
+                    type="submit"
                   >
-                    Get started
+                    Log In
                   </button>
                 </div>
               </div>
             </form>
-           
           </div>
         </div>
       </section>
@@ -112,4 +108,4 @@ const navigate = useNavigate();
   );
 }
 
-export default Login;
+export default AdminLogin;

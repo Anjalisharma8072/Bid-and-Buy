@@ -12,6 +12,9 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const secret = require("../secretKey");
 const authMiddleware = require("../middleware/authMiddleware");
+const feedbacks = require("../models/Feedback");
+const admin = require("../admin");
+const adminAuthMiddleWare = require("../middleware/adminauthmiddleware")
 
 const CLIENT_ID = config.CLIENT_ID;
 const CLIENT_SECRET = config.CLIENT_SECRET;
@@ -77,6 +80,31 @@ router.post("/register", async (req, res) => {
   }
 });
 
+
+//admin signup
+
+// Admin login route
+router.post("/admin/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  // Fixed admin credentials
+  const ADMIN_EMAIL = admin.email;
+  const ADMIN_PASSWORD = admin.password;
+ 
+
+  if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+    // Generate JWT token for admin
+    const payload = { role: 'admin' };
+    jwt.sign(payload, secret.key, { expiresIn: '1h' }, (err, token) => {
+      if (err) throw err;
+      res.status(200).json({ token });
+    });
+  } else {
+    res.status(401).json({ message: 'Invalid credentials' });
+  }
+});
+
+
 // Sign In
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
@@ -95,6 +123,7 @@ router.post("/login", async (req, res) => {
     const payload = {
       user: {
         id: user._id,
+     
       },
     };
 
@@ -218,28 +247,25 @@ router.post("/place-bid", authMiddleware, async (req, res) => {
   }
 });
 
-router.get('/UserItem',authMiddleware,async(req,res)=>{
-
-   try {
-     const products = await productDetails.find({userId:req.user.id});
-     res.json(products);
-   } catch (err) {
-     res.status(500).json({ message: err.message });
-   }
-
-
-})
-
+router.get("/UserItem", authMiddleware, async (req, res) => {
+  try {
+    const products = await productDetails.find({ userId: req.user.id });
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 router.delete("/delete/:productId", authMiddleware, async (req, res) => {
   try {
     const { productId } = req.params;
     const userId = req.user.id; // Assuming authMiddleware attaches user info to req.user
 
-  
-
     // Find the product by ID and verify the owner
-    const product = await productDetails.findOne({ _id: productId, userId: userId });
+    const product = await productDetails.findOne({
+      _id: productId,
+      userId: userId,
+    });
 
     if (!product) {
       return res
@@ -257,6 +283,51 @@ router.delete("/delete/:productId", authMiddleware, async (req, res) => {
   }
 });
 
+router.delete(
+  "/delete/admin/:productId",
+  adminAuthMiddleWare,
+  async (req, res) => {
+    try {
+      const { productId } = req.params;
+
+      const product = await productDetails.findOne({ _id: productId });
+
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      await productDetails.deleteOne({ _id: productId });
+
+      res.status(200).json({ message: "Product deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  }
+);
+router.post("/feedback", authMiddleware, async (req, res) => {
+  const { feedback } = req.body;
+  const userId = req.user.id;
+  try {
+    const message = new feedbacks({ userId, feedback });
+    await message.save();
+    return res.status(201).json({ message: "Feedback Sends Sucessfully" });
+  } catch (error) {
+    console.error("Error Sending Feedback:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.get("/admin/feedbacks",async(req,res)=>{
+
+  try {
+    const userFeedbacks = await feedbacks.find({});
+    res.json(userFeedbacks);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+
+})
 
 async function handleBidEnd(productId) {
   try {
